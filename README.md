@@ -7,9 +7,10 @@ The paper has been accepted to Interspeech 2022.
 
 ### Acknowlegements
 
-Some of the code is borrowed or adapted from Co-Separation. 
-The code for the lip analysis network is adapted from 
-Lipreading using Temporal Convolutional Networks.
+The evaluation code is adapted from  Out of time: automated lip sync in the wild. 
+The training  code and the experiment configuration setup is borrowed or adapted from that of A Lip Sync Expert Is All You Need for Speech to Lip Generation In the Wild.
+The code for internal components of the transformer block is borrowed from
+that of the work Multimodal Transformer for Unaligned Multimodal Language Sequences.
 
 ### Licence
 This project makes use of source code of other existing works. 
@@ -18,8 +19,6 @@ while the parts of the repository based on the code reused/adapted from elsewher
 are available under their respective license terms. 
 The code for evaluation setup is adapted from the source code of the paper 
 ''Out of time: automated lip sync in the wild'' which is made available under https://github.com/joonson/syncnet_python/blob/master/LICENSE.md.
-
 The code for the transformer encoder and its internal components are made available under https://github.com/yaohungt/Multimodal-Transformer/blob/master/LICENSE.
-
 The code related to reading the experiment configuration (hparams) is adapted from the code of https://github.com/Rudrabha/Wav2Lip/
 which is under non-commercial license terms. 
