@@ -1,0 +1,9 @@
+acappella_info==0.1.post1
+natsort==6.0.0
+numpy==1.18.5
+opencv_python==4.2.0.34
+scikit_learn==1.1.1
+SoundFile==0.10.2
+torch==1.10.0+cu113
+torchaudio==0.10.0+cu113
+tqdm==4.46.1
