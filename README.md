@@ -5,6 +5,20 @@ Official repository for the paper VocaLiST: An Audio-Visual Synchronisation Mode
 
 The paper has been accepted to Interspeech 2022.
 
+### Datasets
+There are 2 datasets involved in this work: i) The AV speech dataset of LRS2, 
+and ii) the AV singing voice dataset of Acappella.
+The LRS2 dataset can be requested for download at https://www.robots.ox.ac.uk/~vgg/data/lip_reading/lrs2.html
+The Acappella dataset can be downloaded by following the steps mentioned in https://ipcv.github.io/Acappella/acappella/.
+
+### Preprocessing
+All the models considered in this work operate on audios sampled at 16kHz 
+and videos with 25fps. The preprocessing steps are the same as in 
+https://github.com/Rudrabha/Wav2Lip/blob/master/preprocess.py. The objective 
+of the preprocessing step is to obtain the cropped RGB face frames of size 3x96x96 
+in the .jpg format and audios of 16kHz sampling rate for each of the video samples in respective datasets.
+
+
 ### Acknowlegements
 
 The evaluation code is adapted from  Out of time: automated lip sync in the wild. 
