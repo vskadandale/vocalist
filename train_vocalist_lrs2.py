@@ -45,7 +45,6 @@ print('use_cuda: {}'.format(use_cuda))
 num_audio_elements = 3200  # 6400  # 16000/25 * syncnet_T
 tot_num_frames = 25  # buffer
 v_context = 5  # 10  # 5
-syncnet_mel_step_size = 16  #32  #80  # num_audio_elements/hop_size(=128)
 BATCH_SIZE = 128  # 128
 MODE = 'train'
 TOP_DB = -hparams.min_level_db

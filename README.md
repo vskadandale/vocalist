@@ -18,6 +18,15 @@ https://github.com/Rudrabha/Wav2Lip/blob/master/preprocess.py. The objective
 of the preprocessing step is to obtain the cropped RGB face frames of size 3x96x96 
 in the .jpg format and audios of 16kHz sampling rate for each of the video samples in respective datasets.
 
+### Training
+To train the VocaLiST model on LRS2 dataset, run the program train_vocalist_lrs2.py.
+To train on Acappella dataset, run the program train_vocalist_acappella.py.
+Please remember to change the paths to save the checkpoint and the dataset related paths accordingly.
+Note that, by default, models are trained to detect synchronization in a context of 
+5 frames, which corresponds to audio of 3200 elements. To change the 
+context length, it is also necessary to change the length of audio, accordingly.
+
+
 ### Testing
 To test the models, first download the pretrained model weights from [here](https://drive.google.com/drive/u/0/folders/1-g4qHUNNcCZpmSqEflKMxPMvwnn9e88N).
 To test on LRS2, run the program test_lrs2.py. 
