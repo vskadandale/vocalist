@@ -12,7 +12,7 @@ The code for the lip analysis network is adapted from
 Lipreading using Temporal Convolutional Networks.
 
 ### Licence
-This project heavily makes use of source code of other existing works. 
+This project makes use of source code of other existing works. 
 Only the original source code from this repository is provided under CC-BY-NC license, 
 while the parts of the repository based on the code reused/adapted from elsewhere 
 are available under their respective license terms. 
