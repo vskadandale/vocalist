@@ -8,8 +8,8 @@ The paper has been accepted to Interspeech 2022.
 ### Datasets
 There are 2 datasets involved in this work: i) The AV speech dataset of LRS2, 
 and ii) the AV singing voice dataset of Acappella.
-The LRS2 dataset can be requested for download at https://www.robots.ox.ac.uk/~vgg/data/lip_reading/lrs2.html
-The Acappella dataset can be downloaded by following the steps mentioned in https://ipcv.github.io/Acappella/acappella/.
+The LRS2 dataset can be requested for download [here](https://www.robots.ox.ac.uk/~vgg/data/lip_reading/lrs2.html).
+The Acappella dataset can be downloaded by following the steps mentioned [here](https://ipcv.github.io/Acappella/acappella/).
 
 ### Preprocessing
 All the models considered in this work operate on audios sampled at 16kHz 
@@ -18,8 +18,15 @@ https://github.com/Rudrabha/Wav2Lip/blob/master/preprocess.py. The objective
 of the preprocessing step is to obtain the cropped RGB face frames of size 3x96x96 
 in the .jpg format and audios of 16kHz sampling rate for each of the video samples in respective datasets.
 
+### Testing
+To test the models, first download the pretrained model weights from [here](https://drive.google.com/drive/u/0/folders/1-g4qHUNNcCZpmSqEflKMxPMvwnn9e88N).
+To test on LRS2, run the program test_lrs2.py. 
+To test on Acappella dataset, run the program test_acappella.py.
+If you wish to evaluate on Acappella dataset only for a particular context, 
+run the program test_acappella_specific.py. Please remember to change the paths to the 
+pretrained weights and the dataset related paths accordingly.
 
-### Acknowlegements
+### Acknowledgements
 
 The evaluation code is adapted from  Out of time: automated lip sync in the wild. 
 The training  code and the experiment configuration setup is borrowed or adapted from that of A Lip Sync Expert Is All You Need for Speech to Lip Generation In the Wild.
