@@ -33,7 +33,7 @@ The training  code and the experiment configuration setup is borrowed or adapted
 The code for internal components of the transformer block is borrowed from
 that of the work Multimodal Transformer for Unaligned Multimodal Language Sequences.
 
-### Licence
+### License
 This project makes use of source code of other existing works. 
 Only the original source code from this repository is provided under CC-BY-NC license, 
 while the parts of the repository based on the code reused/adapted from elsewhere 
