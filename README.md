@@ -9,7 +9,6 @@ The paper has been accepted to Interspeech 2022.
     <div class="center col-md-8" style="text-align: center">
         <img src="Vocalist_Illustration.png"/>
     </div>
-    <span>Fig 2. Our audio encoder (left) and visual encoder (right).</span>
 </div>
 
 ### Datasets
