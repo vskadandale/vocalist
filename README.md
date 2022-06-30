@@ -5,6 +5,13 @@ Official repository for the paper VocaLiST: An Audio-Visual Synchronisation Mode
 
 The paper has been accepted to Interspeech 2022.
 
+<div class="center" style="text-align: center">
+    <div class="center col-md-8" style="text-align: center">
+        <img src="Vocalist_Illustration.png"/>
+    </div>
+    <span>Fig 2. Our audio encoder (left) and visual encoder (right).</span>
+</div>
+
 ### Datasets
 There are 2 datasets involved in this work: i) The AV speech dataset of LRS2, 
 and ii) the AV singing voice dataset of Acappella.
