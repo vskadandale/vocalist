@@ -14,8 +14,8 @@ The paper has been accepted to Interspeech 2022.
 ### Datasets
 There are 2 datasets involved in this work: i) The AV speech dataset of LRS2, 
 and ii) the AV singing voice dataset of Acappella.
-The LRS2 dataset can be requested for download [here](https://www.robots.ox.ac.uk/~vgg/data/lip_reading/lrs2.html).
-The Acappella dataset can be downloaded by following the steps mentioned [here](https://ipcv.github.io/Acappella/acappella/).
+The LRS2 dataset can be requested for download [[here]](https://www.robots.ox.ac.uk/~vgg/data/lip_reading/lrs2.html).
+The Acappella dataset can be downloaded by following the steps mentioned [[here]](https://ipcv.github.io/Acappella/acappella/).
 
 ### Preprocessing
 All the models considered in this work operate on audios sampled at 16kHz 
@@ -34,7 +34,7 @@ context length, it is also necessary to change the length of audio, accordingly.
 
 
 ### Testing
-To test the models, first download the pretrained model weights from [here](https://drive.google.com/drive/u/0/folders/1-g4qHUNNcCZpmSqEflKMxPMvwnn9e88N).
+To test the models, first download the pretrained model weights from [[here]](https://drive.google.com/drive/u/0/folders/1-g4qHUNNcCZpmSqEflKMxPMvwnn9e88N).
 To test on LRS2, run the program test_lrs2.py. 
 To test on Acappella dataset, run the program test_acappella.py.
 If you wish to evaluate on Acappella dataset only for a particular context, 
@@ -47,6 +47,31 @@ The evaluation code is adapted from  Out of time: automated lip sync in the wild
 The training  code and the experiment configuration setup is borrowed or adapted from that of A Lip Sync Expert Is All You Need for Speech to Lip Generation In the Wild.
 The code for internal components of the transformer block is borrowed from
 that of the work Multimodal Transformer for Unaligned Multimodal Language Sequences.
+
+### NEW RELATED WORKS !!!
+
+[[MTDVocaLiST]](https://arxiv.org/abs/2210.15563), a lightweight variant of VocaLiST has been proposed which claims to reduce the VocaLiST model size by a whopping **83.52%**, yet still maintaining similar performance. The ([[Source Code]](https://github.com/xjchenGit/MTDVocaLiST)!!!) has also been made available for the same. If you are interested in VocaLiST, we encourage you to check out [[MTDVocaLiST]](https://arxiv.org/abs/2210.15563) as well.
+
+
+### Citation
+
+If you find our work useful, please consider citing
+```
+@inproceedings{kadandale2022vocalist,
+  title={VocaLiST: An Audio-Visual Synchronisation Model for Lips and Voices},
+  author={Kadandale, Venkatesh S and Montesinos, Juan F and Haro, Gloria},
+  booktitle={Interspeech},
+  pages={3128--3132},
+  year={2022}
+}
+
+@article{chen2022multimodal,
+  title={Multimodal Transformer Distillation for Audio-Visual Synchronization},
+  author={Chen, Xuanjun and Wu, Haibin and Wang, Chung-Che and Lee, Hung-yi and Jang, Jyh-Shing Roger},
+  journal={arXiv preprint arXiv:2210.15563},
+  year={2022}
+}
+```
 
 ### License
 This project makes use of source code of other existing works. 
