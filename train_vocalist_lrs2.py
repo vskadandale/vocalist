@@ -54,6 +54,28 @@ melscale = MelScale(n_mels=hparams.num_mels, sample_rate=hparams.sample_rate, f_
 logloss = nn.BCEWithLogitsLoss()
 
 
+def get_audio_duration_with_soundfile(audio_file_path):
+    """
+    robust function get audio duration from wav file
+    Args:
+        audio_file_path: wav file name
+
+    Returns:
+        duration in seconds (float)
+    """
+    with sf.SoundFile(audio_file_path, 'r') as audio_file:
+        # Get the number of frames in the audio file
+        num_frames = len(audio_file)
+
+        # Get the frame rate of the audio file
+        frame_rate = audio_file.samplerate
+
+        # Calculate the duration in seconds
+        duration = float(num_frames) / frame_rate
+
+        return duration
+
+
 class Dataset(object):
     def __init__(self, split):
         self.split = split
@@ -68,8 +90,19 @@ class Dataset(object):
     def get_wav(self, wavpath, vid_frame_id):
         aud = sf.SoundFile(wavpath)
         can_seek = aud.seekable()
-        pos_aud_chunk_start = vid_frame_id * 640
-        _ = aud.seek(pos_aud_chunk_start)
+        pos_aud_chunk_start = int(np.floor((vid_frame_id * 640)))  # np.floor is important
+        try:
+            a = aud.seek(pos_aud_chunk_start)
+        except:
+            # for debugging
+            print('audio duration, ', get_audio_duration_with_soundfile(wavpath))
+            print('vid_frame_id ', vid_frame_id)
+            print('audio filename ', wavpath)
+            print('num audio samples, ', get_audio_duration_with_soundfile(wavpath)*16000)
+            print('pos_aud_chunk_start ', pos_aud_chunk_start)
+            print()
+            raise Exception('problem with seek')
+
         wav_vec = aud.read(num_audio_elements)
         return wav_vec
 
@@ -87,6 +120,8 @@ class Dataset(object):
         for frame_id in range(start_id, start_id + v_context):
             frame = join(vidname, '{}.jpg'.format(frame_id))
             if not isfile(frame):
+                # print this for debugging
+                print(f'{vidname, "{}.jpg".format(frame_id)} is not a file')
                 return None
             window_fnames.append(frame)
         return window_fnames
@@ -95,69 +130,90 @@ class Dataset(object):
         return len(self.all_videos)
 
     def __getitem__(self, idx):
-        while 1:
-            idx = random.randint(0, len(self.all_videos) - 1)
-            vidname = self.all_videos[idx]
-            wavpath = join(vidname, "audio.wav")
-            img_names = natsorted(list(glob(join(vidname, '*.jpg'))), key=lambda y: y.lower())
-            interval_st, interval_end = 0, len(img_names)
-            if interval_end-interval_st <= tot_num_frames:
-                continue
-            pos_frame_id = random.randint(interval_st, interval_end-v_context)
-            pos_wav = self.get_wav(wavpath, pos_frame_id)
-            rms_pos_wav = self.rms(pos_wav)
+        # don't take random idx !!!
+        # avoid 'continue, use 'assert' instead to find errors
+        vidname = self.all_videos[idx]
+        wavpath = join(vidname, "audio.wav")
+        img_names = natsorted(list(glob(join(vidname, '*.jpg'))), key=lambda y: y.lower())
+        # get the image numbers
+        img_nums = np.array([int(basename(item)[:-4]) for item in img_names])
+        # compute min and max (img not start at 0.jpg could happen)
+        min_img = np.min(img_nums)
+        max_img = np.max(img_nums)
+        # it is very important to compute last AUDIO frame in order to get valid interval_end
+        max_audio = int(np.floor(get_audio_duration_with_soundfile(wavpath)*25))
 
-            img_name = os.path.join(vidname, str(pos_frame_id)+'.jpg')
-            window_fnames = self.get_window(img_name)
-            if window_fnames is None:
-                continue
+        # set interval_st, interval_end
+        interval_st, interval_end = min_img, np.minimum(max_audio, max_img)
 
-            window = []
-            all_read = True
-            for fname in window_fnames:
-                img = cv2.imread(fname)
-                if img is None:
-                    all_read = False
-                    break
-                try:
-                    img = cv2.resize(img, (hparams.img_size, hparams.img_size))
-                except Exception as e:
-                    all_read = False
-                    break
+        # use assert not condition instead of if condition, continue
+        # to ensure everything is alright
+        assert interval_end-interval_st > tot_num_frames
 
-                window.append(img)
+        # use randrange rather than rangeint (last element is exclusive)
+        pos_frame_id = random.randrange(interval_st, interval_end-v_context)
+        pos_wav = self.get_wav(wavpath, pos_frame_id)
+        rms_pos_wav = self.rms(pos_wav)
 
-            if not all_read: continue
-            if random.choice([True, False]):
-                y = torch.ones(1).float()
-                wav = pos_wav
-            else:
-                y = torch.zeros(1).float()
-                try_counter = 0
-                while True:
-                    neg_frame_id = random.randint(interval_st, interval_end - v_context)
-                    if neg_frame_id != pos_frame_id:
-                        wav = self.get_wav(wavpath, neg_frame_id)
-                        if rms_pos_wav > 0.01:
-                            break
-                        else:
-                            if self.rms(wav) > 0.01 or try_counter>10:
-                                break
-                        try_counter += 1
+        img_name = os.path.join(vidname, str(pos_frame_id)+'.jpg')
+        window_fnames = self.get_window(img_name)
+        assert window_fnames is not None
 
-                if try_counter > 10:
+        window = []
+        all_read = True
+        for fname in window_fnames:
+            img = cv2.imread(fname)
+            if img is None:
+                all_read = False
+                break
+            try:
+                img = cv2.resize(img, (hparams.img_size, hparams.img_size))
+            except Exception as e:
+                all_read = False
+                break
+
+            window.append(img)
+        # instead of if ... continue
+        assert all_read
+        if random.choice([True, False]):
+            # call it label rather tha y
+            label = torch.ones(1).float()
+            wav = pos_wav
+        else:
+            # call it label rather tha y
+            label = torch.zeros(1).float()
+            try_counter = 0
+            # the goal is to avoid silence segments
+            while True:
+                # use randrange instead of randint
+                neg_frame_id = random.randrange(interval_st, interval_end-v_context)
+                # avoid pos_frame_id == neg_frame_id, we want a new position
+                if pos_frame_id == neg_frame_id:
                     continue
-            aud_tensor = torch.FloatTensor(wav)
 
-            # H, W, T, 3 --> T*3
-            vid = np.concatenate(window, axis=2) / 255.
-            vid = vid.transpose(2, 0, 1)
-            vid = torch.FloatTensor(vid[:, 48:])
-            if torch.any(torch.isnan(vid)) or torch.any(torch.isnan(aud_tensor)):
-                continue
-            if vid==None or aud_tensor==None:
-                continue
-            return vid, aud_tensor, y
+                wav = self.get_wav(wavpath, neg_frame_id)
+                if rms_pos_wav > 0.01:
+                    break
+                else:
+                    if self.rms(wav) > 0.01 or try_counter>10:
+                        break
+                try_counter += 1
+        # keep negative position even if try_counter > 10
+        # this is the only limitation of the 'no continue' approach
+        # could increase the try_counter max
+        aud_tensor = torch.FloatTensor(wav)
+
+        # H, W, T, 3 --> T*3
+        vid = np.concatenate(window, axis=2) / 255.
+        vid = vid.transpose(2, 0, 1)
+        vid = torch.FloatTensor(vid[:, 48:])
+        # instead of if ... continue
+        assert not torch.any(torch.isnan(vid))
+        assert not torch.any(torch.isnan(aud_tensor))
+        assert vid is not None
+        assert aud_tensor is not None
+
+        return vid, aud_tensor, label
 
 
 def train(device, model, train_data_loader, test_data_loader, optimizer,
@@ -168,8 +224,8 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
     while global_epoch < nepochs:
         f1_scores = []
         running_loss = 0.
-        prog_bar = tqdm(enumerate(train_data_loader))
-        for step, (vid, aud, y) in prog_bar:
+        prog_bar = tqdm(enumerate(train_data_loader), total=len(train_data_loader))
+        for step, (vid, aud, label) in prog_bar:
             vid = vid.to(device)
             gt_aud = aud.to(device)
 
@@ -185,19 +241,19 @@ def train(device, model, train_data_loader, test_data_loader, optimizer,
             optimizer.zero_grad()
 
             out = model(vid.clone().detach(), mels.clone().detach())
-            loss = logloss(out, y.squeeze(-1).to(device))
+            loss = logloss(out, label.squeeze(-1).to(device))
             loss.backward()
             optimizer.step()
 
             est_label = (out > 0.5).float()
-            f1_metric = f1_score(y.clone().detach().cpu().numpy(),
+            f1_metric = f1_score(label.clone().detach().cpu().numpy(),
                                  est_label.clone().detach().cpu().numpy(),
                                  average="weighted")
             f1_scores.append(f1_metric.item())
             global_step += 1
             cur_session_steps = global_step - resumed_step
             running_loss += loss.item()
-            prog_bar.set_description('[TRAINING LOSS]: {}, [TRAINING F1]: {}'
+            prog_bar.set_description('[TRAINING LOSS]: {:.4f}, [TRAINING F1]: {:.4f}'
                                  .format(running_loss / (step + 1), sum(f1_scores)/len(f1_scores)))
 
         f1_epoch = sum(f1_scores) / len(f1_scores)
@@ -217,8 +273,8 @@ def eval_model(test_data_loader, device, model, checkpoint_dir, nepochs=None):
     losses = []
     running_loss=0
     f1_scores = []
-    prog_bar = tqdm(enumerate(test_data_loader))
-    for step, (vid, aud, y) in prog_bar:
+    prog_bar = tqdm(enumerate(test_data_loader), total=len(test_data_loader))
+    for step, (vid, aud, label) in prog_bar:
         model.eval()
         with torch.no_grad():
             vid = vid.to(device)
@@ -234,16 +290,16 @@ def eval_model(test_data_loader, device, model, checkpoint_dir, nepochs=None):
                                         -hparams.max_abs_value, hparams.max_abs_value)
             mels = normalized_mel[:, :, :-1].unsqueeze(1)
             out = model(vid.clone().detach(), mels.clone().detach())
-            loss = logloss(out, y.squeeze(-1).to(device))
+            loss = logloss(out, label.squeeze(-1).to(device))
             losses.append(loss.item())
 
             est_label = (out > 0.5).float()
-            f1_metric = f1_score(y.clone().detach().cpu().numpy(),
+            f1_metric = f1_score(label.clone().detach().cpu().numpy(),
                                  est_label.clone().detach().cpu().numpy(),
                                  average="weighted")
             f1_scores.append(f1_metric.item())
             running_loss += loss.item()
-            prog_bar.set_description('[VAL RUNNING LOSS]: {}, [VAL F1]: {}'
+            prog_bar.set_description('[VAL RUNNING LOSS]: {:.4f}, [VAL F1]: {:.4f}'
                                  .format(running_loss / (step + 1), sum(f1_scores)/len(f1_scores)))
 
     averaged_loss = sum(losses) / len(losses)
